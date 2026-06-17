@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  admin
+  seller
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  delivered
+  cancelled
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String    @db.VarChar(100)
+  email         String    @unique @db.VarChar(150)
+  password_hash String    @db.VarChar(255)
+  role          Role      @default(seller)
+  created_at    DateTime  @default(now())
+
+  orders        Order[]
+
+  @@map("users")
+}
+
+model Product {
+  id          String    @id @default(uuid())
+  name        String    @db.VarChar(150)
+  description String?   @db.Text
+  material    String    @db.VarChar(50)
+  gemstone    String?   @db.VarChar(50)
+  weight_g    Decimal   @db.Decimal(8, 2)
+  price       Decimal   @db.Decimal(10, 2)
+  stock       Int       @default(0)
+  image_url   String?   @db.VarChar(255)
+  deleted_at  DateTime?
+
+  order_items OrderItem[]
+
+  @@map("products")
+}
+
+model Customer {
+  id         String   @id @default(uuid())
+  name       String   @db.VarChar(100)
+  cpf        String   @unique @db.Char(11)
+  email      String   @unique @db.VarChar(150)
+  phone      String?  @db.VarChar(20)
+  address    String?  @db.Text
+  created_at DateTime @default(now())
+
+  orders     Order[]
+
+  @@map("customers")
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  customer_id String
+  user_id     String
+  status      OrderStatus @default(pending)
+  total       Decimal     @db.Decimal(10, 2)
+  notes       String?     @db.Text
+  created_at  DateTime    @default(now())
+
+  customer    Customer    @relation(fields: [customer_id], references: [id])
+  user        User        @relation(fields: [user_id], references: [id])
+  items       OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String  @id @default(uuid())
+  order_id   String
+  product_id String
+  quantity   Int
+  unit_price Decimal @db.Decimal(10, 2)
+
+  order      Order   @relation(fields: [order_id], references: [id])
+  product    Product @relation(fields: [product_id], references: [id])
+
+  @@map("order_items")
+}
