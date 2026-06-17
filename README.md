@@ -79,12 +79,26 @@ cp .env.example .env
 # Aplicar migrações
 npx prisma migrate deploy
 
+# Popular o banco com dados iniciais (opcional)
+npx prisma db seed
+
 # Iniciar em modo desenvolvimento
 npm run start:dev
 ```
 
 API disponível em: `http://localhost:3000`  
 Documentação Swagger: `http://localhost:3000/api`
+
+#### Dados do Seed
+
+O seed cria automaticamente usuários, produtos, clientes e pedidos de exemplo:
+
+| E-mail | Senha | Perfil |
+|--------|-------|--------|
+| admin@luminajoias.com | admin123 | Administrador |
+| vendedor@luminajoias.com | vendedor123 | Vendedor |
+
+> O seed usa `upsert`, portanto é seguro executá-lo múltiplas vezes sem duplicar dados.
 
 ### Frontend
 
