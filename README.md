@@ -8,6 +8,10 @@ Sistema de Gerenciamento de Loja de Joias — aplicação web fullstack para con
 
 O **Lumina Joias** é uma plataforma de gestão especializada para lojas de joias, desenvolvida como projeto acadêmico para a disciplina de Análise e Projeto de Aplicações Web. O sistema oferece uma interface elegante e intuitiva para o controle completo do negócio.
 
+### Documentação do Projeto
+
+Para mais detalhes sobre a modelagem, requisitos e arquitetura do sistema, acesse a [Documentação Técnica do Lumina Joias](https://drive.google.com/file/d/1NM1WMjrV38kQ5vShf_Hc0Z0qTOWOPOfg/view?usp=sharing).
+
 ### Funcionalidades
 
 - **Autenticação** — Cadastro e login com JWT, perfis de Administrador e Vendedor
@@ -142,7 +146,7 @@ Aplicação disponível em: `http://localhost:3000` (ou outra porta disponível)
 |------|--------|
 | Gabriel Romero | [@G4brielRomero](https://github.com/G4brielRomero) |
 | Willian Charantola da Costa | [@willian-charantola](https://github.com/willian-charantola) |
-| João Pedro de Melo Hentz | — |
+| João Pedro de Melo Hentz | — | [@joaohentz] (https://github.com/joaohentz)
 
 ---
 
