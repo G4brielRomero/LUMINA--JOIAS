@@ -24,10 +24,11 @@ O **Lumina Joias** é uma plataforma de gestão especializada para lojas de joia
 |--------|-----------|
 | Frontend | Next.js 16 + Tailwind CSS v4 + TypeScript |
 | Backend | NestJS (Node.js) + TypeScript |
-| Banco de dados | PostgreSQL |
-| ORM | Prisma |
+| Banco de dados | PostgreSQL 16 |
+| ORM | Prisma 7 |
 | Autenticação | JWT + bcrypt |
 | Documentação API | Swagger |
+| Containerização | Docker + Docker Compose |
 
 ---
 
@@ -35,15 +36,22 @@ O **Lumina Joias** é uma plataforma de gestão especializada para lojas de joia
 
 ```
 lumina-joias/
-├── backend/          # API REST (NestJS)
-│   ├── src/
-│   │   ├── auth/         # Login, registro e JWT Guard
-│   │   ├── products/     # CRUD de produtos
-│   │   ├── customers/    # CRUD de clientes
-│   │   ├── orders/       # Gestão de pedidos
-│   │   └── dashboard/    # Métricas e KPIs
-│   └── prisma/           # Schema e migrations
-└── frontend/         # Interface web (Next.js)
+├── docker-compose.yml    # Orquestra todos os serviços
+├── backend/              # API REST (NestJS)
+│   ├── Dockerfile
+│   ├── docker-entrypoint.sh
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   ├── migrations/
+│   │   └── seed.ts       # Dados iniciais
+│   └── src/
+│       ├── auth/         # Login, registro e JWT Guard
+│       ├── products/     # CRUD de produtos
+│       ├── customers/    # CRUD de clientes
+│       ├── orders/       # Gestão de pedidos
+│       └── dashboard/    # Métricas e KPIs
+└── frontend/             # Interface web (Next.js)
+    ├── Dockerfile
     └── src/
         ├── app/          # Páginas (App Router)
         ├── components/   # Componentes reutilizáveis
@@ -53,7 +61,59 @@ lumina-joias/
 
 ---
 
-## Como Rodar Localmente
+## Rodando com Docker *(recomendado)*
+
+A forma mais simples de rodar o projeto. Requer apenas o [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado — sem necessidade de instalar Node.js, PostgreSQL ou configurar variáveis de ambiente.
+
+```bash
+docker compose up
+```
+
+O comando sobe os três serviços automaticamente:
+
+| Ordem | Serviço | O que faz |
+|-------|---------|-----------|
+| 1º | `postgres` | Sobe o banco de dados PostgreSQL |
+| 2º | `backend` | Aplica migrações → popula seed → inicia a API |
+| 3º | `frontend` | Builda e serve a interface web |
+
+### URLs após subir
+
+| Serviço | URL |
+|---------|-----|
+| Frontend | http://localhost:3001 |
+| Backend / API | http://localhost:3000 |
+| Swagger (docs) | http://localhost:3000/api |
+
+### Usuários criados pelo seed
+
+| E-mail | Senha | Perfil |
+|--------|-------|--------|
+| admin@luminajoias.com | admin123 | Administrador |
+| vendedor@luminajoias.com | vendedor123 | Vendedor |
+
+### Comandos úteis
+
+```bash
+# Rodar em segundo plano
+docker compose up -d
+
+# Ver logs
+docker compose logs -f
+
+# Parar os serviços
+docker compose down
+
+# Parar e apagar os dados do banco
+docker compose down -v
+
+# Rebuildar as imagens após mudanças no código
+docker compose up --build
+```
+
+---
+
+## Rodando Localmente *(sem Docker)*
 
 ### Pré-requisitos
 
@@ -73,13 +133,16 @@ npm install
 cp .env.example .env
 # Edite o .env com sua DATABASE_URL e JWT_SECRET
 
-# Criar o banco de dados (no PostgreSQL)
+# Criar o banco no PostgreSQL
 # CREATE DATABASE lumina_joias;
+
+# Gerar o Prisma Client
+npx prisma generate
 
 # Aplicar migrações
 npx prisma migrate deploy
 
-# Popular o banco com dados iniciais (opcional)
+# Popular o banco com dados iniciais
 npx prisma db seed
 
 # Iniciar em modo desenvolvimento
@@ -88,17 +151,6 @@ npm run start:dev
 
 API disponível em: `http://localhost:3000`  
 Documentação Swagger: `http://localhost:3000/api`
-
-#### Dados do Seed
-
-O seed cria automaticamente usuários, produtos, clientes e pedidos de exemplo:
-
-| E-mail | Senha | Perfil |
-|--------|-------|--------|
-| admin@luminajoias.com | admin123 | Administrador |
-| vendedor@luminajoias.com | vendedor123 | Vendedor |
-
-> O seed usa `upsert`, portanto é seguro executá-lo múltiplas vezes sem duplicar dados.
 
 ### Frontend
 
@@ -113,7 +165,7 @@ npm install
 npm run dev
 ```
 
-Aplicação disponível em: `http://localhost:3000` (ou outra porta disponível)
+Aplicação disponível em: `http://localhost:3001`
 
 ---
 

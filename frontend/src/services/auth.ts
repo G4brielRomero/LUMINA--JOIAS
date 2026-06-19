@@ -36,13 +36,20 @@ export function getStoredToken(): string | null {
 
 export function getStoredUser(): AuthUser | null {
   if (typeof window === 'undefined') return null;
-  return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+  try {
+    return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
 }
 
 export function storeAuth(token: string, user: AuthUser): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  if (user) {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+  }
 }
 
 export function clearAuth(): void {

@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface FormErrors {
@@ -66,10 +67,13 @@ export default function RegisterPage() {
       await register(name.trim(), email, password);
       router.push('/login?registered=true');
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível criar a conta. Tente novamente.';
+      let message = 'Não foi possível criar a conta. Tente novamente.';
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data;
+        message = Array.isArray(data?.message)
+          ? data.message.join(', ')
+          : data?.message || message;
+      }
       setServerError(message);
     } finally {
       setIsLoading(false);

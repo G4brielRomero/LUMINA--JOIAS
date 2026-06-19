@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface FormErrors {
@@ -50,10 +51,13 @@ export default function LoginPage() {
       await login(email, password);
       router.push('/');
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Credenciais inválidas. Tente novamente.';
+      let message = 'Credenciais inválidas. Tente novamente.';
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data;
+        message = Array.isArray(data?.message)
+          ? data.message.join(', ')
+          : data?.message || message;
+      }
       setServerError(message);
     } finally {
       setIsLoading(false);
