@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lumina
+      POSTGRES_PASSWORD: lumina123
+      POSTGRES_DB: lumina_joias
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lumina -d lumina_joias"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://lumina:lumina123@postgres:5432/lumina_joias
+      JWT_SECRET: lumina_joias_docker_secret_2025
+      JWT_EXPIRATION: 7d
+      PORT: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
